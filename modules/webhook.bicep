@@ -16,11 +16,11 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2019-06-01' = {
         name: webhookReceiverName
         serviceUri: serviceUri
         useCommonAlertSchema: true
+        useAadAuth: false
       }
     ]
   }
 }
-
 
 resource activityLogAlert 'microsoft.insights/activityLogAlerts@2020-10-01' = {
   name: activityLogAlerts_vmpoweredoff_name
