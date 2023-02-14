@@ -10,10 +10,7 @@ param automationAccountConnectId   string
 resource workflows_deallocatevm_name_resource 'Microsoft.Logic/workflows@2017-07-01' = {
   name: workflows_deallocatevm_name
   location: location
-  tags: {
-    Department: 'IT'
-    Environment: 'Non-Production'
-  }
+  tags: {}
   identity: {
     type: 'SystemAssigned'
   }
@@ -246,4 +243,5 @@ resource workflows_deallocatevm_name_resource 'Microsoft.Logic/workflows@2017-07
     }
   }
 }
-output 
+
+output logicAppGetUrl string = listCallbackURL('${workflows_deallocatevm_name_resource.id}/triggers/manual', '2017-07-01').value

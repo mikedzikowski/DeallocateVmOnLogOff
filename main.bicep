@@ -5,20 +5,21 @@ targetScope = 'subscription'
 param location string = deployment().location
 
 @description('Set the following values if there are exisiting resource groups, automation accounts, or storage account that should be targeted. If values are not set a default naming convention will be used by resources created.')
-param exisitingAutomationAccount string
-param automationAccountRg string
+param exisitingAutomationAccount string = ''
+param automationAccountRg string = 'testaa'
 
-param newAutomationAccount bool
-
+param newAutomationAccount bool = true
 param automationAccountSubscriptionId string = subscription().subscriptionId
 
 @description('deployment name suffix.')
 param deploymentNameSuffix string = utcNow()
+param actionGroupName string = 'deallocateOnPoweroff-ag'
 
+var automationAccountConnectionName = 'azureautomation'
 var runbooksPwsh7 = [
   {
-    name: 'Start-AzureVirtualDesktopRipAndReplace'
-    uri: 'https://raw.githubusercontent.com/mikedzikowski/AVDRipAndReplace/main/runbooks/Start-AzureVirtualDesktopRipAndReplace.ps1'
+    name: 'Start-VmDeallocateOnLogOff'
+    uri: 'https://raw.githubusercontent.com/mikedzikowski/DeallocateVmOnLogOff/main/runbooks/Start-VmDeallocateOnLogOff.ps1'
   }
 ]
 
@@ -75,6 +76,9 @@ var LocationShortNames = {
   westus2: 'wu2'
   westus3: 'wu3'
 }
+
+
+var subscriptionId = subscription().subscriptionId
 var LocationShortName = LocationShortNames[location]
 var NamingStandard = '${LocationShortName}'
 
@@ -89,7 +93,7 @@ var automationAccountNameValue = first(automationAccountNameVar)
 
 module automationAccount 'modules/automationAccount.bicep' = {
   name: 'aa-deployment-${deploymentNameSuffix}'
-  scope: resourceGroup(automationAccountSubscriptionId, automationAccountRg)
+  scope: resourceGroup(subscriptionId, automationAccountRg)
   params: {
     automationAccountName: automationAccountNameValue
     location: location
@@ -98,11 +102,42 @@ module automationAccount 'modules/automationAccount.bicep' = {
   }
 }
 
+module automationAccountConnection 'modules/automationAccountConnection.bicep' = {
+  name: 'automationAccountConnection-deployment-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, automationAccountRg)
+  params: {
+    location: location
+    connection_azureautomation_name: automationAccountConnectionName
+    subscriptionId: subscriptionId
+    displayName: automationAccountConnectionName
+  }
+  dependsOn: [
+    automationAccount
+  ]
+}
+
+module logicapp 'modules/logicapp.bicep' = {
+  name: 'la-deployment-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, automationAccountRg)
+  params: {
+
+    automationAccountConnectionName : automationAccountConnectionName
+    location : location
+    subscriptionId : automationAccountSubscriptionId
+    automationAccountName : automationAccountNameValue
+    automationAccountResourceGroup : automationAccountRg
+    automationAccountLocation : automationAccount.outputs.aaLocation
+    automationAccountConnectId   : automationAccountConnection.outputs.automationConnectId
+  }
+}
+
 module webhook 'modules/webhook.bicep'  = {
   name: 'wh-deployment-${deploymentNameSuffix}'
-  scope: resourceGroup(automationAccountSubscriptionId, automationAccountRg)
+  scope: resourceGroup(subscriptionId, automationAccountRg)
   params:{
-    subscriptionId: subscription().id
-    serviceUri:
+    subscriptionId: subscriptionId
+    serviceUri: logicapp.outputs.logicAppGetUrl
+    actionGroupName:  actionGroupName
+    webhookReceiverName: 'URI'
   }
 }
