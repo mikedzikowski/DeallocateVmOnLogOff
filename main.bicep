@@ -5,10 +5,13 @@ targetScope = 'subscription'
 param location string = deployment().location
 
 @description('Set the following values if there are exisiting resource groups, automation accounts, or storage account that should be targeted. If values are not set a default naming convention will be used by resources created.')
-param exisitingAutomationAccount string = ''
+param aaAccount string = ''
+
+@description('The existing resource group for the resources deployed by this solution.')
 param automationAccountRg string = 'testaa'
 
 param newAutomationAccount bool = true
+
 param automationAccountSubscriptionId string = subscription().subscriptionId
 
 @description('deployment name suffix.')
@@ -82,8 +85,8 @@ var subscriptionId = subscription().subscriptionId
 var LocationShortName = LocationShortNames[location]
 var NamingStandard = '${LocationShortName}'
 
-var automationAccountNameVar = ((!empty(exisitingAutomationAccount)) ? [
-  exisitingAutomationAccount
+var automationAccountNameVar = ((!empty(aaAccount)) ? [
+  aaAccount
 ]: [
   replace('aa-${NamingStandard}', 'aa', uniqueString(NamingStandard))
 ])
