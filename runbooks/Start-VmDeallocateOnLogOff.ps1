@@ -16,7 +16,7 @@ catch
     exit
 }
 
-$AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -DefaultProfile $AzureContext
+$VMNames = $VMNames.split('/')[8]
 
 Foreach ($vm in $VMNames)
 {

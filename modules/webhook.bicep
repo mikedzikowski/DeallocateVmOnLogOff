@@ -1,8 +1,9 @@
-param activityLogAlerts_vmpoweredoff_name string = 'vmpoweredoff'
+param scheduledqueryrules_Deallocate_name string = 'vmpoweredoff'
 param subscriptionId string
 param actionGroupName string
 param webhookReceiverName string
 param serviceUri string
+param location string
 
 
 resource actionGroup 'Microsoft.Insights/actionGroups@2019-06-01' = {
@@ -22,41 +23,48 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2019-06-01' = {
   }
 }
 
-resource activityLogAlert 'microsoft.insights/activityLogAlerts@2020-10-01' = {
-  name: activityLogAlerts_vmpoweredoff_name
-  location: 'Global'
+resource scheduledqueryrules_Deallocate_name_resource 'microsoft.insights/scheduledqueryrules@2022-08-01-preview' = {
+  name: scheduledqueryrules_Deallocate_name
+  location: location
   tags: {
     Environment: 'Production'
   }
   properties: {
+    displayName: scheduledqueryrules_Deallocate_name
+    severity: 3
+    enabled: true
+    evaluationFrequency: 'PT5M'
     scopes: [
       '/subscriptions/${subscriptionId}'
     ]
-    condition: {
+    targetResourceTypes: [
+      'microsoft.compute/virtualmachines'
+    ]
+    windowSize: 'PT5M'
+    overrideQueryTimeRange: 'PT10M'
+    criteria: {
       allOf: [
         {
-          field: 'category'
-          equals: 'Administrative'
-        }
-        {
-          field: 'resourceType'
-          equals: 'microsoft.compute/virtualmachines'
-        }
-        {
-          field: 'operationName'
-          equals: 'Microsoft.Compute/virtualMachines/powerOff/action'
-        }
-      ]
-    }
-    actions: {
-      actionGroups: [
-        {
-          actionGroupId: actionGroup.id
-          webhookProperties: {
+          query: 'Event\n| where EventID == "1074"\n'
+          timeAggregation: 'Count'
+          dimensions: []
+          resourceIdColumn: '_ResourceId'
+          operator: 'GreaterThan'
+          threshold: 0
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
           }
         }
       ]
     }
-    enabled: true
+    autoMitigate: false
+    actions: {
+      actionGroups: [
+        actionGroup.id
+      ]
+      customProperties: {
+      }
+    }
   }
 }
