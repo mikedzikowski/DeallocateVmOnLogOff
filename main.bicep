@@ -5,10 +5,10 @@ targetScope = 'subscription'
 param location string = deployment().location
 
 @description('Set the following values if there are exisiting resource groups, automation accounts, or storage account that should be targeted. If values are not set a default naming convention will be used by resources created.')
-param aaAccount string = ''
+param aaAccount string = 'test-aa'
 
 @description('The existing resource group for the resources deployed by this solution.')
-param automationAccountRg string = 'testaa'
+param automationAccountRg string = 'test-rg'
 
 param newAutomationAccount bool = true
 
@@ -142,5 +142,6 @@ module webhook 'modules/webhook.bicep'  = {
     serviceUri: logicapp.outputs.logicAppGetUrl
     actionGroupName:  actionGroupName
     webhookReceiverName: 'URI'
+    location: location
   }
 }
