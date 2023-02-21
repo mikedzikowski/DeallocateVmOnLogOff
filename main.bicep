@@ -21,8 +21,8 @@ param actionGroupName string = 'deallocateOnPoweroff-ag'
 var automationAccountConnectionName = 'azureautomation'
 var runbooksPwsh7 = [
   {
-    name: 'Start-VmDeallocateOnLogOff'
-    uri: 'https://raw.githubusercontent.com/mikedzikowski/DeallocateVmOnLogOff/main/runbooks/Start-VmDeallocateOnShutDown.ps1'
+    name: 'Start-VmDeallocateOnShutdown'
+    uri: 'https://raw.githubusercontent.com/mikedzikowski/DeallocateVmOnShutDown/main/runbooks/Start-VmDeallocateOnShutDown.ps1'
   }
 ]
 
