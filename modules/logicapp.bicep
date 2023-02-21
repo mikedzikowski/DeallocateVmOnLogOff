@@ -61,7 +61,7 @@ resource workflows_deallocatevm_name_resource 'Microsoft.Logic/workflows@2017-07
                 method: 'put'
                 path: '/subscriptions/@{encodeURIComponent(\'${subscriptionId}\')}/resourceGroups/@{encodeURIComponent(\'${automationAccountResourceGroup}\')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent(\'${automationAccountName}\')}/jobs'
                 queries: {
-                  runbookName: 'Start-VmDeallocation'
+                  runbookName: 'Start-VmDeallocateOnShutdown'
                   wait: true
                   'x-ms-api-version': '2015-10-31'
                 }
