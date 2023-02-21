@@ -245,3 +245,4 @@ resource workflows_deallocatevm_name_resource 'Microsoft.Logic/workflows@2017-07
 }
 
 output logicAppGetUrl string = listCallbackURL('${workflows_deallocatevm_name_resource.id}/triggers/manual', '2017-07-01').value
+output imagePrincipalId string = workflows_deallocatevm_name_resource.identity.principalId

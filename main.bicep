@@ -8,7 +8,7 @@ param location string = deployment().location
 param aaAccount string = 'test-aa'
 
 @description('The existing resource group for the resources deployed by this solution.')
-param automationAccountRg string = 'test-rg'
+param automationAccountRg string = 'testaa'
 
 @description('Create a new automation account or use current one.')
 param newAutomationAccount bool = true
@@ -22,6 +22,7 @@ param deploymentNameSuffix string = utcNow()
 @description('Action group name.')
 param actionGroupName string = 'deallocateOnPoweroff-ag'
 
+var roleId = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var automationAccountConnectionName = 'azureautomation'
 var runbooksPwsh7 = [
   {
@@ -149,3 +150,30 @@ module webhook 'modules/webhook.bicep'  = {
     location: location
   }
 }
+
+module rbacPermissionAzureAutomationAccountRg 'modules/rbacPermissionsSubscriptionScope.bicep' = {
+  name: 'rbac-automationAccountContributor-deployment-${deploymentNameSuffix}'
+  params: {
+    principalId: automationAccount.outputs.aaIdentityId
+    scope: subscription().id
+  }
+  dependsOn: [
+    automationAccount
+    automationAccountConnection
+  ]
+}
+
+module rbacPermissionAzureAutomationWconnector 'modules/rbacPermissions.bicep' = {
+  name: 'rbac-aaConnectorWConn-deployment-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, automationAccountRg)
+  params: {
+    principalId: logicapp.outputs.imagePrincipalId
+    roleId: roleId
+    scope: 'resourceGroup().id'
+  }
+  dependsOn: [
+    automationAccount
+    automationAccountConnection
+  ]
+}
+
