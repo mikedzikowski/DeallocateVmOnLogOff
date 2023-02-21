@@ -22,7 +22,7 @@ var automationAccountConnectionName = 'azureautomation'
 var runbooksPwsh7 = [
   {
     name: 'Start-VmDeallocateOnLogOff'
-    uri: 'https://raw.githubusercontent.com/mikedzikowski/DeallocateVmOnLogOff/main/runbooks/Start-VmDeallocateOnLogOff.ps1'
+    uri: 'https://raw.githubusercontent.com/mikedzikowski/DeallocateVmOnLogOff/main/runbooks/Start-VmDeallocateOnShutDown.ps1'
   }
 ]
 
