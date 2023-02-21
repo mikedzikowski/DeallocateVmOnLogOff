@@ -4,18 +4,22 @@ targetScope = 'subscription'
 @description('The location for the resources deployed in this solution.')
 param location string = deployment().location
 
-@description('Set the following values if there are exisiting resource groups, automation accounts, or storage account that should be targeted. If values are not set a default naming convention will be used by resources created.')
+@description('Automation account name')
 param aaAccount string = 'test-aa'
 
 @description('The existing resource group for the resources deployed by this solution.')
 param automationAccountRg string = 'test-rg'
 
+@description('Create a new automation account or use current one.')
 param newAutomationAccount bool = true
 
+@description('Subscription id of automation account.')
 param automationAccountSubscriptionId string = subscription().subscriptionId
 
-@description('deployment name suffix.')
+@description('Deployment name suffix.')
 param deploymentNameSuffix string = utcNow()
+
+@description('Action group name.')
 param actionGroupName string = 'deallocateOnPoweroff-ag'
 
 var automationAccountConnectionName = 'azureautomation'
