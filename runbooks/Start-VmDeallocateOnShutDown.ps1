@@ -33,6 +33,7 @@ Foreach ($vm in $VMNames)
         }
         else
         {
+            Update-AzAlertState -Alert $alert -State Closed
             Write-Host "VM is not stopped and will not be deallocated"
         }
 }
