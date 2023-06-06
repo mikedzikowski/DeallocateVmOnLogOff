@@ -16,24 +16,28 @@ catch
     exit
 }
 
+
 $VMNames = $VMNames.split('/')[8]
 $alert = $AlertId.split('/')[6]
 
 Foreach ($vm in $VMNames)
 {
-        Write-Output "Deallocated VM:$($VMNames)"
-        $virtualMachine = Get-AzVM -VMName $vm -Status 
-        if($virtualMachine.Statuses -eq "stopped")
+        $virtualMachine = Get-AzVM -VMName $vm -Status
+        Write-Output $alert
+        if($virtualMachine.PowerState -ne "Starting" -or $virtualMachine.PowerState -ne "VM deallocated")
         {
+            Write-Output "Deallocating VM:$($VMNames)"
             $stopVm = Stop-AzVm -Name $virtualMachine.name -ResourceGroupname $virtualMachine.resourceGroupname -Force
             if($stopVM)
             {
-                Update-AzAlertState -Alert $alert -State Closed
+                Write-Output "Deallocated VM:$($VMNames)"
+                Update-AzAlertState -AlertId $alert -State Closed
             }
         }
         else
         {
-            Update-AzAlertState -Alert $alert -State Closed
-            Write-Host "VM is not stopped and will not be deallocated"
+            Update-AzAlertState -AlertId $alert -State Closed
+            Write-Host "VM will not be deallocated"
         }
 }
+Update-AzAlertState
